@@ -22,6 +22,15 @@ public class UserService {
 		return userRepository.findById(id)
 				.orElseThrow(() -> new EntityNotFoundException("User not found with id " + id));
 	}
+	
+	
+	
+
+	
+	public User findByUsername(String username) {
+		return userRepository.findByUsername(username);
+				
+	}
 
 	public List<User> findAll() {
 		return userRepository.findAll();

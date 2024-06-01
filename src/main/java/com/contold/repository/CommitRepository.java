@@ -6,4 +6,6 @@ import com.contold.entity.Commit;
 
 public interface CommitRepository extends JpaRepository<Commit, Long> {
 
+
+	
 }

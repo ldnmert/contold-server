@@ -21,10 +21,10 @@ public class FollowController {
 		this.followService = followService;
 	}
 	
-//	@PostMapping("/{followerId}/request/{followedId}")
-//	public ResponseEntity<String> getFollowRequest(@PathVariable Long followerId, @PathVariable Long followedId){
-//		followService.sendFollowRequest(followerId, followedId);
-//        return ResponseEntity.status(HttpStatus.OK).body("Takip isteği başarıyla gönderildi.");
-//	}
+	@PostMapping("/{followerId}/request/{followedId}")
+	public ResponseEntity<String> getFollowRequest(@PathVariable Long followerId, @PathVariable Long followedId){
+		followService.sendFollowRequest(followerId, followedId);
+        return ResponseEntity.status(HttpStatus.OK).body("Takip isteği başarıyla gönderildi.");
+	}
 	
 }

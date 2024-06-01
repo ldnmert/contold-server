@@ -36,6 +36,15 @@ public class PostService {
 	public Optional<Post> getPostById(Long id) {
 		return postRepository.findById(id);
 	}
+	
+	
+	public List<Post> getLast2PostOfCurrentUser(Long id) {
+		
+		return postRepository.findTop2ByPostFromIdOrderByCreatedAtDesc(id);
+	}
+	
+	
+	
 
 	public Post createPost(Post post, Long id) {
 //		post.setCommits(new ArrayList<Commit>()); buna gerek kalmadı cunku entitydeki baglı bir liste default olarak null degil [] olarak tutuluyor.

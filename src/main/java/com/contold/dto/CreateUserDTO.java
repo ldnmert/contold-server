@@ -3,10 +3,11 @@ package com.contold.dto;
 import lombok.Data;
 
 @Data
-public class DisplayFollowingDTO {
+public class CreateUserDTO {
 
-	private Long id;
 	private String username;
+	private String password;
+	private String role;
 	
 	
 }

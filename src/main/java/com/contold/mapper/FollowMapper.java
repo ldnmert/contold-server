@@ -34,6 +34,7 @@ public class FollowMapper {
 
 		DisplayFollowingDTO DisplayFollowingDTO = new DisplayFollowingDTO();
 
+		DisplayFollowingDTO.setId((follow.getFollower().getId()));
 		DisplayFollowingDTO.setUsername(follow.getFollower().getUsername());
 
 		return DisplayFollowingDTO;

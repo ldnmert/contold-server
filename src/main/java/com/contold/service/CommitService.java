@@ -30,6 +30,9 @@ public class CommitService {
     public Optional<Commit> getCommitById(Long id) {
         return commitRepository.findById(id);
     }
+    
+
+
 
 	public Commit createCommit(Commit commit, Long fromId, Long postId) {
 		commit.setPost(postService.getPostById(postId).get());

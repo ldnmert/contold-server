@@ -1,5 +1,6 @@
 package com.contold.mapper;
 
+import com.contold.dto.CreateUserDTO;
 import com.contold.dto.DisplayUserDTO;
 import com.contold.entity.User;
 
@@ -16,5 +17,18 @@ public class UserMapper {
 		
 		return displayUserDTO;
 	}
+	
+	public static User toEntity(CreateUserDTO createUserDTO) {
+
+		User user = new User();
+
+		user.setPassword(createUserDTO.getPassword());
+		user.setUsername(createUserDTO.getUsername());
+		user.setRole(createUserDTO.getRole());
+		
+		return user;
+	}
+	
+	
 
 }

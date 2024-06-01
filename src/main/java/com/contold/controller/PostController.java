@@ -2,10 +2,10 @@ package com.contold.controller;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,8 +19,11 @@ import com.contold.dto.CreatePostDTO;
 import com.contold.dto.DisplayNewPostDTO;
 import com.contold.dto.DisplayPostDTO;
 import com.contold.entity.Post;
+import com.contold.entity.User;
 import com.contold.mapper.PostMapper;
+import com.contold.repository.FollowRepository;
 import com.contold.service.PostService;
+import com.contold.service.UserService;
 
 @RestController
 @RequestMapping("/post")
@@ -28,29 +31,43 @@ import com.contold.service.PostService;
 public class PostController {
 
 	private final PostService postService;
+	private final FollowRepository followRepository;
+	
+	private final UserService userService;
 
-	public PostController(PostService postService) {
+	public PostController(PostService postService, UserService userService, FollowRepository followRepository) {
+		this.userService = userService;
 		this.postService = postService;
-	}
+		this.followRepository = followRepository;
+	}	
 
-	@GetMapping
-	public ResponseEntity<List<DisplayPostDTO>> getAllPosts() {
-		List<Post> posts = postService.getAllPosts();
-		
-		List<DisplayPostDTO> postsDisplay = PostMapper.fromEntityToDisplayDTO(posts);
-		
-		
+//	@GetMapping
+//	public ResponseEntity<List<DisplayPostDTO>> getAllPosts() {
+//		List<Post> posts = postService.getAllPosts();
+//
+//		List<DisplayPostDTO> postsDisplay = PostMapper.fromEntityToDisplayDTO(posts);
+//
+//		return ResponseEntity.ok(postsDisplay);
+//	}
 
-		return ResponseEntity.ok(postsDisplay);
-	}
+	
 
+	
 	@GetMapping("/{id}")
-	public ResponseEntity<DisplayPostDTO> getPostById(@PathVariable Long id) {
+	public ResponseEntity<DisplayPostDTO> getPostById(@PathVariable Long id, Authentication auth) {
+
 		Optional<Post> post = postService.getPostById(id);
 		if (post.isPresent()) {
+			Long currentUserId = userService.findByUsername(auth.getName()).getId();
+			Long authorizationCheckByFollowing = followRepository.existsByFollowerIdAndFollowedId(currentUserId,
+					post.get().getPostFrom().getId());
+			boolean authorizationCheckMyPost = userService.findByUsername(auth.getName()).getId() == post.get().getPostFrom().getId();
+			if (authorizationCheckByFollowing == 1 || authorizationCheckMyPost) {
 
-			DisplayPostDTO displayPostDto = PostMapper.fromEntityToDisplayDto(post.get());
-			return ResponseEntity.ok(displayPostDto);
+				DisplayPostDTO displayPostDto = PostMapper.fromEntityToDisplayDto(post.get());
+				return ResponseEntity.ok(displayPostDto);
+			}
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
 
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -59,13 +76,21 @@ public class PostController {
 	}
 
 	@PostMapping
-	public ResponseEntity<DisplayNewPostDTO> createPost(@RequestBody CreatePostDTO createPostDTO) {
+	public ResponseEntity<DisplayNewPostDTO> createPost(@RequestBody CreatePostDTO createPostDTO, Authentication auth) {
 
-		Post post = PostMapper.toEntity(createPostDTO);
-		Post createdPost = postService.createPost(post, createPostDTO.getFromId());
+		Long currentUserId = userService.findByUsername(auth.getName()).getId();
 
-		DisplayNewPostDTO dto = PostMapper.fromEntityToNewDisplayDTO(createdPost);
-		return ResponseEntity.status(HttpStatus.CREATED).body(dto);
+		if (createPostDTO.getFromId() == currentUserId) {
+			Post post = PostMapper.toEntity(createPostDTO);
+
+			Post createdPost = postService.createPost(post, createPostDTO.getFromId());
+
+			DisplayNewPostDTO dto = PostMapper.fromEntityToNewDisplayDTO(createdPost);
+			return ResponseEntity.status(HttpStatus.CREATED).body(dto);
+		}
+
+		else
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
 	}
 
 //	@PutMapping("/{id}")
@@ -81,9 +106,16 @@ public class PostController {
 //	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> deletePost(@PathVariable Long id) {
-		postService.deletePost(id);
-		return ResponseEntity.noContent().build();
+	public ResponseEntity<Void> deletePost(@PathVariable Long id, Authentication auth) {
+		Long currentUserId = userService.findByUsername(auth.getName()).getId();
+
+		if (currentUserId == id) {
+
+			postService.deletePost(id);
+			return ResponseEntity.noContent().build();
+		} else
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+
 	}
 
 }

@@ -22,24 +22,24 @@ public class FollowService {
 		this.followRepository = followRepository;
 	}
 
-//	public void sendFollowRequest(Long followerId, Long followedId) {
-//
-//		User follower = userRepository.findById(followerId)
-//				.orElseThrow(() -> new IllegalArgumentException("Follower not found"));
-//		User followed = userRepository.findById(followedId)
-//				.orElseThrow(() -> new IllegalArgumentException("Followed not found"));
+	public void sendFollowRequest(Long followerId, Long followedId) {
 
-//	        Follow existingFollow = followRepository.findByFollowerAndFollows(follower, follows);
+		User follower = userRepository.findById(followerId)
+				.orElseThrow(() -> new IllegalArgumentException("Follower not found"));
+		User followed = userRepository.findById(followedId)
+				.orElseThrow(() -> new IllegalArgumentException("Followed not found"));
+
+//	        Follow existingFollow = followRepository.findByFollowerAndFollows(follower, followed);
 //	        if (existingFollow != null) {
 //	            throw new IllegalStateException("Follow request already sent");
 //	        }
 
-//		Follow follow = new Follow();
-//		follow.setFollower(follower);
-//		follow.setFollowed(followed);
-//		follow.setDateFollowed(LocalDateTime.now());
-//
-//		followRepository.save(follow);
-//	}
+		Follow follow = new Follow();
+		follow.setFollower(followed);
+		follow.setFollowed(follower);
+		follow.setDateFollowed(LocalDateTime.now());
+
+		followRepository.save(follow);
+	}
 
 }
